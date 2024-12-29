@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <hr>
+  <div>
+  {% if component.image %}
+      <img src="{{ birthday.image.url }}" height="200">
+  {% else %}
+      <img src="{% static 'img/no_images.png' %}"  >
+  {% endif %}
+    </div>
+    <h1>{{ component.name }}</h1>
+    <h5>
+    <a href="{{ component.category.get_absolute_url }}">
+    {{ component.category }}
+    </a>
+    </h5>
+    <p>{{ component.manufacturer }}</p>
+
+    {% if component.availability %}
+        <p>В наличии: {{ component.quantity }} шт.</p>
+    {% else %}
+        <p>Под заказ.</p>
+    {% endif %}
+
+    <p>{{ component.price }} руб.</p>
+    
+    {{ component.comment|linebreaks }}
+    <hr>
+{% endblock content %}

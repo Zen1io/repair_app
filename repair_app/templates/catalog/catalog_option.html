@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+  <h1 class="text-center mb-4">Выберите категорию</h1>
+  
+  <div class="row justify-content-center">
+
+    <div class="col-12 col-md-6 col-lg-4 mb-4">
+      <div class="card border-info" style="border-width: 3px; height: 200px;">
+        <div class="card-body text-center d-flex flex-column justify-content-center">
+          <h5 class="card-title display-6">Услуга</h5>
+          <p class="card-text">Выберите услугу для ремонта бытовой техники.</p>
+          <a href="{% url 'catalog:service_list' %}" class="btn btn-info w-100">Перейти</a>
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="col-12 col-md-6 col-lg-4 mb-4">
+      <div class="card border-info" style="border-width: 3px; height: 200px;">
+        <div class="card-body text-center d-flex flex-column justify-content-center">
+          <h5 class="card-title display-6">Деталь</h5>
+          <p class="card-text">Выберите нужную деталь для вашей техники.</p>
+          <a href="{% url 'catalog:component_list' %}" class="btn btn-info w-100">Перейти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

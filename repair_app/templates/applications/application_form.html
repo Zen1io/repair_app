@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load filters %}
+{% block content %}
+{% with data=form.instance %}
+{% if '/edit/' in request.path %}
+    <h1>Редактировать заявку № {{ data.pk }}</h1>
+{% elif "/delete/" in request.path %}
+    <h1>Удалить заявку {{ data.pk }}</h1>
+{% else %}
+    <h1>Создать заявку</h1>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+      Создание заявки
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if '/delete/' not in request.path %}
+                {% bootstrap_form form %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>Выберите компоненты:</h3>
+                        {% for component in components %}
+                        <div class="col-12 d-flex align-items-center">
+                            <label class="col-md-8">
+                                <input type="checkbox" name="components" 
+                                class="component-checkbox" value="{{ component.id }}" 
+                                data-price="{{ component.price }}" 
+                                {% if component.id in selected_components %} checked {% endif %}>
+                                    {{ component }} ({{ component.price }} руб.)
+                                    <br>
+                                    {% if component.availability %}В наличии <span style="color: green;">{{component.quantity}} шт.</span>
+                                    {% else %}<span style="color: red;">Нет в наличии</span>{% endif %}
+                            </label>
+                            <div class="col-md-4">
+                                <input type="number" name="component_quantity_{{ component.id }}" 
+                                class="component-quantity" min="0" 
+                                data-id="{{ component.id }}" style="width: 80px;" {% if component.id not in selected_components %} disabled {% endif %}
+                                {% if component.id in selected_components %}
+                                    value="{{ selected_components|get_from_dict:component.id }}"
+                                {% else %}
+                                    value="0"
+                                {% endif %}>
+                            </div>    
+                            
+                        </div> 
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <h3>Выберите услуги:</h3>
+                        {% for service in services %}
+                        <div class="col-12 d-flex align-items-center">
+                            <label class="col-md-8">
+                                <input type="checkbox" name="services" class="service-checkbox"
+                                value="{{ service.id }}" data-price="{{ service.price }}"
+                                {% if service.id in selected_services %} checked {% endif %}>
+                                {{ service.name }} ({{ service.price }} руб.)
+                            </label>
+                        
+                            <div class="col-md-4">   
+                                <input type="number" name="service_quantity_{{ service.id }}"
+                                class="service-quantity" min="0" data-id="{{ service.id }}"
+                                style="width: 80px;" {% if service.id not in selected_services %} disabled {% endif %}
+                                {% if service.id in selected_services %}
+                                    value="{{ selected_services|get_from_dict:service.id }}"
+                                {% else %}
+                                    value="0"
+                                {% endif %}>
+                            </div>
+                        </div>       
+                        <br>
+                        {% endfor %}
+                    </div>
+                </div>    
+                <div class="mt-4">
+                    <h3>Общая стоимость: <span id="total_cost">0</span> руб.</h3>
+                </div>
+            {% else %}
+            {{ data.id }}
+            {% endif %}
+            <div class="col-md-4">  
+            {% bootstrap_button button_type="submit" content="Отправить" %}
+            <a href="{% url 'applications:applications_list' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+  </div>
+  <script>
+    // Функция для обновления общей стоимости
+    function updateTotalCost() {
+        let totalCost = 0;
+
+        // Обновляем стоимость для компонентов
+        document.querySelectorAll(".component-checkbox:checked").forEach(function (checkbox) {
+            const id = checkbox.value;
+            const price = parseFloat(checkbox.dataset.price);
+            const quantityInput = document.querySelector(`.component-quantity[data-id="${id}"]`);
+            const quantity = parseInt(quantityInput.value) || 0;
+            totalCost += price * quantity;
+        });
+
+        // Обновляем стоимость для услуг
+        document.querySelectorAll(".service-checkbox:checked").forEach(function (checkbox) {
+            const id = checkbox.value;
+            const price = parseFloat(checkbox.dataset.price);
+            const quantityInput = document.querySelector(`.service-quantity[data-id="${id}"]`);
+            const quantity = parseInt(quantityInput.value) || 0;
+            totalCost += price * quantity;
+        });
+
+        // Обновляем поле общей стоимости
+        document.getElementById('total_cost').textContent = totalCost.toFixed(2);
+    }
+
+    // Функция для включения/отключения полей количества
+    function toggleQuantityInputs() {
+        // Включаем или отключаем поля количества в зависимости от состояния чекбоксов
+        document.querySelectorAll(".component-checkbox").forEach(function (checkbox) {
+            const id = checkbox.value;
+            const quantityInput = document.querySelector(`.component-quantity[data-id="${id}"]`);
+            quantityInput.disabled = !checkbox.checked;
+        });
+
+        document.querySelectorAll(".service-checkbox").forEach(function (checkbox) {
+            const id = checkbox.value;
+            const quantityInput = document.querySelector(`.service-quantity[data-id="${id}"]`);
+            quantityInput.disabled = !checkbox.checked;
+        });
+    }
+
+    // Инициализация
+    window.onload = function () {
+        // Слушаем изменения чекбоксов для компонентов
+        document.querySelectorAll(".component-checkbox, .service-checkbox").forEach(function (checkbox) {
+            checkbox.addEventListener('change', function () {
+                toggleQuantityInputs();
+                updateTotalCost();
+            });
+        });
+
+        // Слушаем изменения количества компонентов и услуг
+        document.querySelectorAll(".component-quantity, .service-quantity").forEach(function (input) {
+            input.addEventListener('input', updateTotalCost);
+        });
+
+        toggleQuantityInputs();
+        updateTotalCost();
+    }
+  </script>
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+  <h1>Удалить запись {{ object.pk }}</h1>
+  <div class="card col-4 m-3">
+    <div class="card-header">
+      {{ application.first_name }} {{ application.last_name }}
+    </div>
+    <div class="card-body">
+        <p> Удалить заявку {{ application.first_name }} {{ application.last_name }} от {{ application.date_of_access}} ? </p>
+      <form method="post">
+        {% csrf_token %}
+        {% bootstrap_button button_type="submit" content="Удалить" %}
+        <a href="{% url 'applications:applications_list' %}" class="btn btn-secondary">Отмена</a>
+      </form>
+    </div>
+  </div>
+{% endblock content %}

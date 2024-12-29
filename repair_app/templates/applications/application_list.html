@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h1 class="text-center mb-4">Список заявок</h1>
+    
+    <div class="row">
+      <div class="col-12">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Номер заказа</th>
+                    <th>Имя</th>
+                    <th>Дата обращения</th>
+                    <th>Мастер</th>
+                    <th>Стоимость</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for application in page_obj %}
+                <tr>
+                  <td>{{ application.id }}</td>
+                  <td>{{ application.first_name }} {{ application.last_name }}</td>
+                  <td>{{ application.date_of_access }}</td>
+                  <td>{{ application.master.first_name }} {{ application.master.last_name }}</td>
+                  <td>{{ application.get_total_cost }}</td>
+                  <td>
+                    <a href="{% url 'applications:application_pdf' application.id %}" class="btn btn-success btn-sm">PDF</a>
+                      {% if application.can_edit %}
+                          <a href="{% url 'applications:application_edit' application.id %}" class="btn btn-warning btn-sm">Редактировать</a>
+                          <a href="{% url 'applications:application_delete' application.id %}" class="btn btn-danger btn-sm">Удалить</a>
+                      {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        <div class="d-flex justify-content-center mt-4">
+            {% include "includes/paginator.html" %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <style>
+            table, td, th{
+                border-collapse: collapse;
+                border: 3px solid;
+            }
+            table {
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <h2> Заявка № {{ application.id}}  от {{application.date_of_access}} </h2>
+        <p>
+            Заказчик: {{application.first_name}} {{ application.last_name}}
+            <br>    
+            Дата выполнения: {{ application.date_of_readiness}}
+            <br>
+            Тип техники: {{application.category}}
+            <br>
+            Выполнил мастер: {{application.master.first_name}} {{ application.master.last_name }}
+            <br>
+        </p>
+        <p>
+            Описание проблемы:<br>
+            {{ application.comment }}
+        </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Артикул</th>
+                    <th>Наименование</th>
+                    <th>Цена</th>
+                    <th>Количество</th>
+                    <th>Сумма</th>
+                </tr>
+            </thead>
+            <tbody >
+              {% for component in selected_components %}
+                <tr style='border: 3px solid;'>
+                  <td>{{ component.component.article_number }}</td>
+                  <td>{{ component.component.name }}</td>
+                  <td>{{ component.component.price }}</td>
+                  <td>{{ component.quantity}}</td>
+                  <td>{{ component.get_cost }}</td>
+                </tr>
+              {% endfor %}
+              {% for service in selected_services %}
+                <tr>
+                  <td>{{ service.service.article_number }}</td>
+                  <td>{{ service.service.name }}</td>
+                  <td>{{ service.service.price }}</td>
+                  <td>{{ service.quantity}}</td>
+                  <td>{{ service.get_cost }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        <p>
+            <b>Общая стоимость:</b> {{ application.get_total_cost }}
+        </p>
+</html>

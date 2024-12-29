@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="container">
+    <h1 class="text-center mb-4">Детали</h1>
+    
+    <div class="container mt-4">
+        <div class="row">
+          <div class="col-md-3">
+            <h5>Категории</h5>
+            <ul class="list-group">
+              <li class="list-group-item {% if not current_category %}active{% endif %}">
+                <a href="{% url 'catalog:component_list' %}" class="text-decoration-none" style="color: inherit;">Все детали</a>
+              </li>
+              {% for category in categories %}
+                <li class="list-group-item {% if category.slug == current_category %}active{% endif %}">
+                  <a href="{% url 'catalog:component_list_by_category' category.slug %}" class="text-decoration-none" style="color: inherit;">
+                    {{ category.title }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+      
+          <div class="col-md-9">
+            <h3>{% if current_category %}Детали в категории: {{ category.title }}{% else %}Все детали{% endif %}</h3>
+              <!-- Фильтрация -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <form method="get" class="form-inline">
+                    <div class="form-group">
+                      <label for="manufacturer" class="me-2">Производитель:</label>
+                      <select name="manufacturer" id="manufacturer" class="form-select" onchange="this.form.submit()">
+                        <option value="">Все</option>
+                        {% for manufacturer in manufacturers %}
+                          <option value="{{ manufacturer.id }}" {% if manufacturer.id|stringformat:"s" == selected_manufacturer %}selected{% endif %}>
+                            {{ manufacturer.title }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <!-- Добавить текущие параметры сортировки -->
+                    <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                  </form>
+                </div>
+                
+                <div class="col-md-6 text-end">
+                  <span>Сортировать по:</span>
+                  <a href="?sort=price{% if selected_manufacturer %} & manufacturer={{ selected_manufacturer }}{% endif %}" class="btn btn-link">Цена</a>
+                  <a href="?sort=availability{% if selected_manufacturer %} & manufacturer={{ selected_manufacturer }}{% endif %}" class="btn btn-link">Наличие</a>
+                </div>
+              </div>
+            <div class="row">
+              {% for component in object_list %}
+                <div class="col-md-4 mb-4">
+                  <div class="card">
+                    <div class="card-body">
+                      <a href="{% url 'catalog:component_detail' component.pk  %}" class="text-decoration-none" >
+                      {% if component.image %}
+                        <img src="{{ birthday.image.url }}" height="200">
+                      {% else %}
+                        <img src="{% static 'img/no_images.png' %}"  >
+                      {% endif %}
+                      <h5 class="card-title">{{ component.name }}</h5>
+                      <p class="card-text">{{ component.price }} руб.</p>
+                      <p class="card-text">{{ component.manufacturer }}</p>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+    <div class="d-flex justify-content-center mt-4">
+      {% include "includes/paginator.html" %}
+    </div>
+  </div>
+{% endblock %}
